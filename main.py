@@ -65,6 +65,11 @@ class VoyxBrowser(QMainWindow):
 
 def main():
     """Main application entry point."""
+    # Add Chromium command-line arguments for extension support
+    sys.argv += [
+        '--load-extension=' + os.path.abspath("extensions/test-extension"),
+        '--enable-experimental-web-platform-features'
+    ]
     app = QApplication(sys.argv)
     app.setApplicationName("Voyx Browser")
     app.setApplicationVersion("1.0.0")
