@@ -5,21 +5,39 @@ Browser Window Module - Handles tabbed browsing and navigation controls.
 
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QTabWidget,
                              QLineEdit, QPushButton, QToolBar, QAction, QMenu,
-                             QScrollArea, QFrame)
+                             QScrollArea, QFrame, QDialog, QDialogButtonBox)
 from PyQt5.QtCore import QUrl, Qt, pyqtSlot
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineProfile
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineProfile, QWebEngineSettings
 from PyQt5.QtGui import QIcon, QKeySequence
 
 class BrowserTab(QWebEngineView):
     """Individual browser tab with custom web engine view."""
     
-    def __init__(self, security_manager, userscript_manager, paywall_bypass, browser_window=None):
+    def __init__(self, security_manager, userscript_manager, paywall_bypass, browser_window=None, extensions_dir="extensions"):
         super().__init__()
+        # Initialize dependencies first
         self.security_manager = security_manager
         self.userscript_manager = userscript_manager
         self.paywall_bypass = paywall_bypass
         self.browser_window = browser_window
+        
+        # Configure web engine profile for extensions
+        self.profile = QWebEngineProfile("VoyxProfile", self)
+        self.profile.setPersistentStoragePath(extensions_dir)
+        self.profile.setCachePath(extensions_dir + "/cache")
+        self.profile.setPersistentCookiesPolicy(QWebEngineProfile.ForcePersistentCookies)
+        # Enable extension support
+        self.page().settings().setAttribute(QWebEngineSettings.PluginsEnabled, True)
+        self.page().settings().setAttribute(QWebEngineSettings.LocalStorageEnabled, True)
+        
+        # Setup console logging
+        self.page().javaScriptConsoleMessage = lambda level, message, line, source: print(f"CONSOLE: {message}")
         self.setUrl(QUrl("https://www.google.com"))
+        
+        # Verify extensions loaded
+        
+
+    
         
         # Connect signals
         self.urlChanged.connect(self.on_url_changed)
@@ -175,7 +193,7 @@ class BrowserWindow(QWidget):
         
     def create_new_tab(self):
         """Create a new browser tab."""
-        tab = BrowserTab(self.security_manager, self.userscript_manager, self.paywall_bypass, self)
+        tab = BrowserTab(self.security_manager, self.userscript_manager, self.paywall_bypass, self, "extensions")
         index = self.tab_widget.addTab(tab, "New Tab")
         self.tab_widget.setCurrentIndex(index)
         
@@ -331,18 +349,26 @@ class BrowserWindow(QWidget):
         QMainWindow, QWidget {
             background-color: #2b2b2b;
             color: #ffffff;
+            font-family: 'Segoe UI', 'Ubuntu', sans-serif;
+            font-size: 14px;
         }
         QToolBar {
             background-color: #3c3c3c;
             border: none;
-            spacing: 2px;
+            spacing: 4px;
+            padding: 4px;
         }
         QLineEdit {
             background-color: #3c3c3c;
             color: #ffffff;
             border: 1px solid #555555;
-            border-radius: 3px;
-            padding: 3px;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        QLineEdit:hover {
+            border-color: #0078d4;
         }
         QTabWidget::pane {
             border: 1px solid #555555;
@@ -354,25 +380,41 @@ class BrowserWindow(QWidget):
         QTabBar::tab {
             background-color: #3c3c3c;
             color: #ffffff;
-            padding: 5px 10px;
+            padding: 8px 12px;
             border: 1px solid #555555;
             border-bottom: none;
-            border-top-left-radius: 3px;
-            border-top-right-radius: 3px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            font-size: 13px;
+            transition: all 0.2s ease;
         }
         QTabBar::tab:selected {
             background-color: #2b2b2b;
             border-bottom: 1px solid #2b2b2b;
+            transform: translateY(-1px);
         }
         QTabBar::tab:hover {
             background-color: #4c4c4c;
+            transform: translateY(-2px);
         }
         QAction {
             color: #ffffff;
             background-color: transparent;
+            padding: 4px 6px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
         }
         QAction:hover {
-            background-color: #4c4c4c;
+            background-color: #0078d4;
+            transform: scale(1.05);
+        }
+        QPushButton {
+            font-family: 'Segoe UI', 'Ubuntu', sans-serif;
+            padding: 4px 8px;
+            transition: all 0.2s ease;
+        }
+        QPushButton:hover {
+            background-color: #0078d4;
         }
         """
         self.setStyleSheet(dark_stylesheet)
@@ -443,12 +485,63 @@ class BrowserWindow(QWidget):
             """
             current_tab.page().runJavaScript(js)
     
+    def setup_animations(self):
+        """Initialize UI animations."""
+        # Tab change animation
+        self.tab_animation = QPropertyAnimation(self.tab_widget, b"pos")
+        self.tab_animation.setDuration(300)
+        self.tab_animation.setEasingCurve(QEasingCurve.OutQuad)
+        
+        # Bookmark bar fade-in
+        self.bookmark_animation = QPropertyAnimation(self.bookmarks_scroll_area, b"maximumHeight")
+        self.bookmark_animation.setDuration(200)
+        self.bookmark_animation.setStartValue(0)
+        self.bookmark_animation.setEndValue(40)
+        
+        # Connect animation triggers
+        self.tab_widget.currentChanged.connect(self.animate_tab_change)
+        self.bookmark_btn.triggered.connect(self.animate_bookmark_bar)
+
+    def animate_tab_change(self, index):
+        """Animate tab transition."""
+        if index >= 0:
+            self.tab_animation.setStartValue(self.tab_widget.pos() + QPoint(20, 0))
+            self.tab_animation.setEndValue(self.tab_widget.pos())
+            self.tab_animation.start()
+
+    def animate_bookmark_bar(self):
+        """Toggle bookmark bar with animation."""
+        current_height = self.bookmarks_scroll_area.maximumHeight()
+        self.bookmark_animation.setDirection(
+            QAbstractAnimation.Forward if current_height == 0 else QAbstractAnimation.Backward
+        )
+        self.bookmark_animation.start()
+
     def is_dark_theme_enabled(self):
         """Check if dark theme is currently enabled."""
         return getattr(self, 'dark_theme_enabled', False)
     
     def open_security_settings(self):
-        """Open security settings dialog."""
-        # This would need to be implemented with a dialog
-        # For now, just show a message
-        print("Security settings dialog would open here")
+        """Open security settings dialog as popup window."""
+        dialog = SecuritySettingsDialog(self.security_manager)
+        dialog.exec_()
+
+class SecuritySettingsDialog(QDialog):
+    """Popup dialog for security settings configuration."""
+    
+    def __init__(self, security_manager):
+        super().__init__()
+        self.setWindowTitle("Security Settings")
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setMinimumSize(400, 500)
+        
+        layout = QVBoxLayout(self)
+        from security_settings import SecuritySettingsPanel
+        self.settings_panel = SecuritySettingsPanel(security_manager)
+        layout.addWidget(self.settings_panel)
+        
+        # Add dialog buttons
+        btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        btn_box.accepted.connect(self.accept)
+        btn_box.rejected.connect(self.reject)
+        layout.addWidget(btn_box)
