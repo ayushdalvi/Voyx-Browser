@@ -13,100 +13,53 @@
 [![MIT License][license-shield]][license-url]
 
 <br />
-<p align="center">
-  <a href="https://github.com/TCP-Tech/CodeUtsava9.0">
-    <img src="/src/assets/images/codeutsavaTitle3d.webp" alt="Logo" width="400">
-  </a>
 
-  <h3 align="center">CodeUtsava 9.0</h3>
+# Voyx Browser
 
-  <p align="center">
-    The Official Repository for the website of CodeUtsava 9.0
-    <br />
-    <br />
-    <!-- <a href="https://codeutsava9.netlify.app/">View Live</a> -->
-    ·
-    <a href="https://github.com/TCP-Tech/CodeUtsava9.0/issues">Report Bugs</a>
-    .
-    <a href="https://github.com/TCP-Tech/CodeUtsava9.0/issues">Add Features</a>
-  </p>
-</p>
+**A privacy-focused, AI-powered web browser for developers and security-conscious users.**
 
-<!-- TABLE OF CONTENTS -->
-<details open="open">
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-      </ul>
-        <li><a href="#built-with">Built With</a></li>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#local-repository-setup-🎃">Local Repository Setup</a></li>
-        <li><a href="#running-the-project">Running the project</a></li>
-      </ul>
-    </li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#Turing Club Of Programmers">Turing Club Of Programmers</a></li>
-    <li><a href="#starware">Starware</a></li>
-  </ol>
-</details>
+Voyx Browser is a web browser built with Python and PyQt5 that offers a unique blend of features designed to enhance your browsing experience. It combines a powerful AI assistant, a flexible userscript manager, and robust security and privacy controls into a single, cohesive package.
 
-## About The Project
+## Features
 
-CodeUtsava is an event being organized by Turing Club of Programmers, the Official Coding Club of NIT Raipur. It aims to foster and nurture invigorating coding culture among the students of the Institute through its Mentorship programme, workshops, and along with several other events including the annual event CodeUtsava. Students from all over India can take part in this event, attend Workshops, participate in the Hackathon, and various other coding related activities which are organized under this event.
-
-## Built With
-
-Following technologies and libraries are used for the development of this website
-
-- [Python]()
+*   **AI Assistant:** Get instant answers to your questions, summarize web pages, and generate code with the integrated AI panel, powered by the OpenRouter API.
+*   **Userscript Manager:** Customize your browsing experience by installing and managing your own JavaScript snippets.
+*   **Paywall Bypasser:** Automatically attempts to bypass paywalls on popular websites.
+*   **Security Manager:** Block ads and trackers, and enforce HTTPS to protect your privacy.
+*   **Dark Theme:** Enjoy a comfortable browsing experience in low-light environments with the built-in dark theme.
+*   **Bookmarks:** Save and organize your favorite websites with the easy-to-use bookmarking system.
+*   **Extension Support:** Load and use Chromium extensions to further customize your browser.
 
 ## Getting Started
 
-To setup the project locally the steps below.
+To run Voyx Browser, you will need to have Python 3 and the required dependencies installed.
 
-### Prerequisites
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/ayushmandalvi/Voylx-Browser.git
+    ```
+2.  **Install the dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+3.  **Run the application:**
+    ```bash
+    python main.py
+    ```
 
+## Improvements
 
-### Join
+This version of Voyx Browser includes the following fixes and enhancements:
 
-
-Our Discord Community: [Discord Invite](https://discord.gg/mq8PprVHUv) <br>
-
-### Local Repository Setup 🎃
-
-Please refer to the project's style and contribution guidelines for submitting patches and additions. In general, we follow the "fork-and-pull" Git workflow.
-
-1.  **Fork** the repo on GitHub
-2.  **Clone** the project to your local system
-3.  **Commit** changes to your own separate branch
-4.  **Push** your work back up to your fork
-5.  Submit a **Pull request** so that we can review your changes
-
-<!-- NOTE 1: Please abide by the [Contributing Guidelines](https://github.com/dscnitrourkela/project-guava-web/blob/master/CONTRIBUTING.md). -->
-
-NOTE : Please abide by the [Code of Conduct](https://github.com/TCP-Tech/CodeUtsava9.0/CODE_OF_CONDUCT.md).
-
-### Running the project.
-
-
-
-Following are the commands to remove/add new dependencies using yarn
-
+*   **Fixed Critical Errors:** Resolved several critical errors that were causing the application to crash or behave unexpectedly.
+*   **Improved Stability:** The application is now more stable and reliable.
+*   **Removed Invalid Userscript:** Deleted an invalid userscript that was causing JavaScript errors.
+*   **Enhanced Extension Support:** Improved the handling of browser extensions to prevent JavaScript errors.
+*   **Updated README:** Created a new, more comprehensive README file to better document the project.
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## Turing Club Of Programmers
-
-![Turing Club Of Programmers][tcp]
-
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
 ## Starware
 
 Voyx Browser is Starware.
