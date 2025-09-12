@@ -74,6 +74,13 @@ class PaywallBypass(QObject):
                     r'bloomberg\.com'
                 ],
                 'action': 'set_cookies'
+            },
+            {
+                'name': 'Disable JavaScript',
+                'patterns': [
+                    r'example\.com'
+                ],
+                'action': 'disable_javascript'
             }
         ]
     
@@ -123,6 +130,14 @@ class PaywallBypass(QObject):
                 document.cookie = "subscription=premium; path=/; domain=" + window.location.hostname;
                 document.cookie = "user_status=subscribed; path=/; domain=" + window.location.hostname;
                 document.cookie = "paywall=bypassed; path=/; domain=" + window.location.hostname;
+            """
+        elif action == 'disable_javascript':
+            return """
+                // Disable JavaScript on the page
+                window.eval = function() {};
+                setTimeout(function() {
+                    window.eval = window.old_eval;
+                }, 1000);
             """
         return None
     
