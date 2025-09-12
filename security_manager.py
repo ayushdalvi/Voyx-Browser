@@ -4,6 +4,7 @@ ad/tracker blocking, and privacy controls for the browser.
 """
 
 import re
+import os
 from urllib.parse import urlparse
 from PyQt5.QtCore import QObject, QSettings
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
@@ -17,26 +18,24 @@ class SecurityManager(QObject):
         self.load_settings()
         
         # Common ad/tracker patterns
-        self.ad_patterns = [
-            r'ad\.\w+\.',
-            r'ads?\.\w+\.',
-            r'adserver\.',
-            r'advert',
-            r'tracker\.',
-            r'analytics',
-            r'doubleclick\.net',
-            r'googleadservices\.com',
-            r'googlesyndication\.com',
-            r'facebook\.com/tr/',
-            r'fbcdn\.net',
-            r'\.gif\?',
-            r'pixel\.',
-            r'beacon\.',
-            r'tracking\.'
-        ]
+        self.ad_patterns = self.load_blocklists()
         
         # Compiled regex patterns for performance
         self.ad_regex = [re.compile(pattern, re.IGNORECASE) for pattern in self.ad_patterns]
+
+    def load_blocklists(self):
+        """Load block lists from the blocklists directory."""
+        blocklists = []
+        blocklists_dir = "blocklists"
+        if os.path.exists(blocklists_dir):
+            for filename in os.listdir(blocklists_dir):
+                if filename.endswith(".txt"):
+                    with open(os.path.join(blocklists_dir, filename), "r") as f:
+                        for line in f:
+                            line = line.strip()
+                            if line and not line.startswith("!"):
+                                blocklists.append(line)
+        return blocklists
         
     def load_settings(self):
         """Load security settings from QSettings."""
@@ -44,6 +43,8 @@ class SecurityManager(QObject):
         self.block_ads = self.settings.value("block_ads", True, type=bool)
         self.block_trackers = self.settings.value("block_trackers", True, type=bool)
         self.strict_privacy = self.settings.value("strict_privacy", False, type=bool)
+        self.vpn_enabled = self.settings.value("vpn_enabled", False, type=bool)
+        self.vpn_server = self.settings.value("vpn_server", "US Server", type=str)
         
     def save_settings(self):
         """Save security settings to QSettings."""
@@ -51,6 +52,8 @@ class SecurityManager(QObject):
         self.settings.setValue("block_ads", self.block_ads)
         self.settings.setValue("block_trackers", self.block_trackers)
         self.settings.setValue("strict_privacy", self.strict_privacy)
+        self.settings.setValue("vpn_enabled", self.vpn_enabled)
+        self.settings.setValue("vpn_server", self.vpn_server)
         
     def should_block_url(self, url):
         """Determine if a URL should be blocked based on security settings."""
@@ -60,8 +63,10 @@ class SecurityManager(QObject):
         if self.https_only and url_str.startswith('http://'):
             return True
             
-        # Block ads and trackers
+        # Block ads and trackers (unless VPN enabled for paywall bypass)
         if (self.block_ads or self.block_trackers) and self.is_ad_or_tracker(url_str):
+            if self.vpn_enabled and self.should_bypass_via_vpn(url_str):
+                return False  # Allow through VPN
             return True
             
         return False
@@ -109,8 +114,26 @@ class SecurityManager(QObject):
             'https_only': self.https_only,
             'block_ads': self.block_ads,
             'block_trackers': self.block_trackers,
-            'strict_privacy': self.strict_privacy
+            'strict_privacy': self.strict_privacy,
+            'vpn_enabled': self.vpn_enabled,
+            'vpn_server': self.vpn_server
         }
+
+    def set_vpn_enabled(self, enabled):
+        """Enable or disable VPN routing."""
+        self.vpn_enabled = enabled
+        self.save_settings()
+
+    def set_vpn_server(self, server):
+        """Set VPN server location."""
+        self.vpn_server = server
+        self.save_settings()
+
+    def should_bypass_via_vpn(self, url):
+        """Determine if URL should be routed through VPN."""
+        # Implement actual VPN routing logic here
+        # For now, just allow all when VPN is enabled
+        return self.vpn_enabled
 
 class UrlRequestInterceptor(QWebEngineUrlRequestInterceptor):
     """Intercepts URL requests to block ads and enforce security policies."""
