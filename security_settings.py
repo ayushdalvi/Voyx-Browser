@@ -3,7 +3,7 @@ Security Settings Panel Module - Provides a GUI for configuring security setting
 """
 
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QGroupBox, 
-                             QCheckBox, QPushButton, QLabel, QFrame, QScrollArea)
+                             QCheckBox, QPushButton, QLabel, QFrame, QScrollArea, QComboBox)
 from PyQt5.QtCore import Qt, pyqtSignal
 
 class SecuritySettingsPanel(QWidget):
@@ -64,8 +64,30 @@ class SecuritySettingsPanel(QWidget):
         self.paywall_bypass_cb = QCheckBox("Enable paywall bypass")
         self.paywall_bypass_cb.setToolTip("Attempt to bypass subscription paywalls")
         paywall_layout.addWidget(self.paywall_bypass_cb)
+
+        # VPN settings group
+        vpn_group = QGroupBox("VPN Configuration")
+        vpn_layout = QVBoxLayout(vpn_group)
+        
+        self.vpn_enable_cb = QCheckBox("Enable VPN for ads/paywalls")
+        self.vpn_enable_cb.setToolTip("Route traffic through VPN to bypass regional restrictions")
+        vpn_layout.addWidget(self.vpn_enable_cb)
+        
+        # Server selection
+        server_layout = QHBoxLayout()
+        server_layout.addWidget(QLabel("VPN Server:"))
+        self.vpn_server_combo = QComboBox()
+        self.vpn_server_combo.addItems(["US Server", "EU Server", "Asia Server", "Custom"])
+        server_layout.addWidget(self.vpn_server_combo)
+        vpn_layout.addLayout(server_layout)
+        
+        # VPN status
+        self.vpn_status = QLabel("Status: Disconnected")
+        self.vpn_status.setAlignment(Qt.AlignCenter)
+        vpn_layout.addWidget(self.vpn_status)
         
         scroll_layout.addWidget(paywall_group)
+        scroll_layout.addWidget(vpn_group)
         
         # Userscripts group
         userscripts_group = QGroupBox("Custom Scripts")
@@ -124,6 +146,10 @@ class SecuritySettingsPanel(QWidget):
         self.block_trackers_cb.setChecked(settings['block_trackers'])
         self.strict_privacy_cb.setChecked(settings['strict_privacy'])
         
+        # Load VPN settings
+        self.vpn_enable_cb.setChecked(settings.get('vpn_enabled', False))
+        self.vpn_server_combo.setCurrentText(settings.get('vpn_server', 'US Server'))
+        
         # These would need to be connected to other managers
         self.paywall_bypass_cb.setChecked(True)  # Default enabled
         self.userscripts_enabled_cb.setChecked(True)  # Default enabled
@@ -134,6 +160,10 @@ class SecuritySettingsPanel(QWidget):
         self.security_manager.set_block_ads(self.block_ads_cb.isChecked())
         self.security_manager.set_block_trackers(self.block_trackers_cb.isChecked())
         self.security_manager.set_strict_privacy(self.strict_privacy_cb.isChecked())
+        
+        # Update VPN settings
+        self.security_manager.set_vpn_enabled(self.vpn_enable_cb.isChecked())
+        self.security_manager.set_vpn_server(self.vpn_server_combo.currentText())
         
         # Emit signal to notify other components
         self.settings_changed.emit()
@@ -160,5 +190,7 @@ class SecuritySettingsPanel(QWidget):
             'block_trackers': self.block_trackers_cb.isChecked(),
             'strict_privacy': self.strict_privacy_cb.isChecked(),
             'paywall_bypass': self.paywall_bypass_cb.isChecked(),
-            'userscripts_enabled': self.userscripts_enabled_cb.isChecked()
+            'userscripts_enabled': self.userscripts_enabled_cb.isChecked(),
+            'vpn_enabled': self.vpn_enable_cb.isChecked(),
+            'vpn_server': self.vpn_server_combo.currentText()
         }
