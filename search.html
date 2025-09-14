@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voyx Search</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #e6e6e6;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .search-container {
+            text-align: center;
+        }
+        #search-input {
+            background-color: #1a1a1a;
+            color: #e6e6e6;
+            border: 1px solid #ff003c;
+            border-radius: 0px;
+            padding: 10px 15px;
+            font-size: 16px;
+            width: 500px;
+        }
+        #search-engine-select {
+            background-color: #1a1a1a;
+            color: #e6e6e6;
+            border: 1px solid #ff003c;
+            border-radius: 0px;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        #search-button {
+            background-color: #1a1a1a;
+            color: #e6e6e6;
+            border: 1px solid #ff003c;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #search-button:hover {
+            background-color: #00f0ff;
+            color: #0d0d0d;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <h1>Voyx Search</h1>
+        <input type="text" id="search-input" placeholder="Search the web...">
+        <select id="search-engine-select">
+            <option value="https://www.google.com/search?q=">Google</option>
+            <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+            <option value="https://www.bing.com/search?q=">Bing</option>
+        </select>
+        <button id="search-button">Search</button>
+    </div>
+    <script>
+        document.getElementById('search-button').addEventListener('click', function() {
+            let query = document.getElementById('search-input').value;
+            let searchEngine = document.getElementById('search-engine-select').value;
+            if (query) {
+                window.location.href = searchEngine + encodeURIComponent(query);
+            }
+        });
+        document.getElementById('search-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                document.getElementById('search-button').click();
+            }
+        });
+    </script>
+</body>
+</html>
